@@ -32,7 +32,7 @@ sudo systemctl restart snmpd
 
 Clone this repo in your work directory and install dependencies
 ```console
-git clone https://gitlab.com/todo-lr/football.git
+git clone git@gitwork.ru:kidp/kurs4/2023/dev/2020-3-07-kos.git
 pip install -r requirements.txt
 ```
 

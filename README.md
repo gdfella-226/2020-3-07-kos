@@ -61,4 +61,4 @@ python3 -m main
 ![Опрос](./data/img2.jpg)
 
 1) Прием асинхронных сообщений от агентов
-![Опрос](./data/img3.jpg)
+![Trap](./data/img3.jpg)

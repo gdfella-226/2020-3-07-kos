@@ -1,45 +1,64 @@
-# SNMP Monitor
+# Средство сетвого мониторинга на базе протокола SNMP
 
-Console Application for network monitoring 
+Реализация базовых функций мониторинга:
 
-## Requirements
- 
+1) Обнаружение устройств
+1) Опрос метрик
+1) Прием асихронных оповещений
+
+## Зависимости
+
 1) pysnmp == 0.7.1
-2) python-nmap == 2.0.16  
-3) netifaces == 0.11.0
-4) art == 6.1
+1) python-nmap == 2.0.16  
+1) netifaces == 0.11.0
+1) art == 6.1
 
-## Setup 
-### Configure SNMP
-Install SNMP packages
-```console
+## Подготовка к запуску 
+### Конфигурация SNMP
+
+*На данном этапе настройку рекомендуется проводить по [документации SNMP](https://net-snmp.org/docs)*
+
+Установить пакеты SNMP
+```bash
 sudo apt update
 sudo apt install snmp
 ```
 
-Edit SNMP daemon config file   
-Set ```community string``` and ```agent address```
-```console
+Отредактировать конфиг-файл 
+Задать ```community string``` - строка сообщества (должна быть одинаковой на менеджере и агентах) и ```agent address``` - протокл и порт для соединения
+```bash
 sudo nano /etc/snmp/snmpd.conf
 ```
 
-Restart SNMP service
-```console
+Перезапстить службу SNMP
+```bash
 sudo systemctl restart snmpd
 ```
 
-### Configure python project
+### Конфигурация python-проекта
 
-Clone this repo in your work directory and install dependencies
-```console
+Склонировать репозиторий в рабочую директорию и установить зависимости
+```bash
 git clone git@gitwork.ru:kidp/kurs4/2023/dev/2020-3-07-kos.git
 pip install -r requirements.txt
 ```
 
 
-## Run
-Move to local repository and run ```main.py```
-```console
+## Запуск
+
+Перейти в локальный репозиторий и запустить ```main.py```
+```bash
 cd Path/To/Repo/snmp_monitor
 python3 -m main
 ```
+
+## Примеры работы
+
+1) Обнаружение доступных сетевых устройств
+![Обнаружение](./data/img1.jpg)
+
+1) Опрос метрик устройств
+![Опрос](./data/img2.jpg)
+
+1) Прием асинхронных сообщений от агентов
+![Опрос](./data/img3.jpg)

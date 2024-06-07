@@ -26,7 +26,7 @@
                     {% for host in hosts %}
                     <div class="host" onclick="document.getElementById('ipInput').value='{{ host.ip }}'; document.getElementById('hostForm').submit();">
                         <p class="ip">{{ host.ip }}</p>
-                        <h2>{{ host.name }}</h2>
+                        <h2>{{ host.hostname }}</h2>
                         <div class="role-os">
                             <p class="role">{{ host.role }}</p>
                         </div>
@@ -38,7 +38,6 @@
             <div class="details">
                 <div class="cpu-usage">
                     <select class="dropdown" id="chart-select">
-                        <option value="status">Status</option>
                         <option value="cpu-usage">CPU Usage</option>
                         <option value="hdd-usage">HDD Usage</option>
                         <option value="network-usage">Network Usage</option>
@@ -48,20 +47,20 @@
                     </div>
                     <form method="POST" id="criticalForm" class="input-container">
                         {% csrf_token %}
-                        <input type="number" class="dropdown" name="critical_value" id="criticalInput" value="{{ critical_value }}">
+                        <input type="number" placeholder="Critical value:" class="dropdown" name="critical_value" id="criticalInput" value="{{ critical_value }}">
                         <button type="submit">Update</button>
                     </form>
                 </div>
                 <div class="host-info">
-                    <h3>{{ active_host.name }} Info</h3>
+                    <h3>{{ active_host.hostname }} Info</h3>
                     <ul>
                         <li><strong>IP: </strong> {{ active_host.ip }} </li>
                         <li><strong>Status: </strong> {{ active_host.status }} </li>
-                        <li><strong>OS: </strong> {{ active_host.os }} </li>
-                        <li><strong>CPU Usage: </strong>  {{ active_host.cpu_usage }}%</li>
-                        <li><strong>HDD Usage: </strong>  {{ active_host.hdd_usage }}/{{ active_host.hdd_total }}  Gb</li>
+                        <li><strong>OS: </strong> {{ active_host.system }} </li>
+                        <li><strong>CPU Usage: </strong>  {{ active_host.measures.cpu_usage.measures.last.1 }}%</li>
+                        <li><strong>HDD Usage: </strong>  {{ active_host.measures.hdd_usage.measures.last.1 }}/{{ active_host.hdd_total }}  Gb</li>
                         <li><strong>Network Usage: </strong>  {{ active_host.network_usage }}  b</li>
-                        <li><strong>USB Devices: </strong>  {{ active_host.usb }} </li>
+                        <li><strong>USB Devices: </strong>  {{ active_host.usb_devs }} </li>
                     </ul>
                 </div>
                 <div class="network-devices">
@@ -69,7 +68,7 @@
                     <ul>
                         {% for host in hosts %}
                         <li>
-                            <strong>{{ host.ip }}:</strong> {{ host.name }}
+                            <strong>{{ host.ip }}:</strong> {{ host.hostname }}
                             <span class="status {% if host.status == 'Active' %}active{% else %}inactive{% endif %}"></span>
                         </li>
                         {% endfor %}
@@ -85,7 +84,7 @@
                     <h3 class="warning-title"><b>Warning</b></h3>
                     <p><b> {{ title }} </b></p>
                     <p> {{ description }} </p>
-                    <button onclick="document.getElementById('ipInput').value='{{ trouble_host }}'; document.getElementById('hostForm').submit();">Check saved state</button>
+                    <button onclick="document.getElementById('ipInput').value='{{ trouble_host.ip }}'; document.getElementById('hostForm').submit();">Check saved state</button>
                 </div>
             </div>
             {% endif %}

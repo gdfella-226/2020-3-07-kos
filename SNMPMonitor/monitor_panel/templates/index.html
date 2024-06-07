@@ -38,9 +38,9 @@
             <div class="details">
                 <div class="cpu-usage">
                     <select class="dropdown" id="chart-select">
-                        <option value="cpu-usage">CPU Usage</option>
-                        <option value="hdd-usage">HDD Usage</option>
-                        <option value="network-usage">Network Usage</option>
+                        <option value="cpu_usage" {% if active_measure == 'cpu_usage' %}selected{% endif %}>CPU Usage</option>
+                        <option value="hdd_usage" {% if active_measure == 'hdd_usage' %}selected{% endif %}>HDD Usage</option>
+                        <option value="network_usage" {% if active_measure == 'network_usage' %}selected{% endif %}>Network Usage</option>
                     </select>
                     <div class="chart">
                         <canvas id="myChart"></canvas>

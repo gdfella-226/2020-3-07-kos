@@ -11,7 +11,7 @@ from pysnmp.carrier.asyncore.dgram import udp
 from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntfrcv
 from pysnmp.hlapi import *
-from data import Host, Iface
+from monitor.panel.models import Host
 
 TERM_WIDTH = get_terminal_size().columns
 

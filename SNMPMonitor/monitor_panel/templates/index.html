@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <header class="header">
-            <h1><b>Network Monitor</b></h1>
+            <h1><b>SNMP Monitor</b></h1>
             <div class="admin">
                 <img src="{% static 'img/user.png' %}" alt="Admin" class="admin-img">
                 <span>Admin</span>
@@ -37,10 +37,10 @@
             </form>
             <div class="details">
                 <div class="cpu-usage">
-                    <select class="dropdown" id="measure-select">
-                        <option value="cpu_usage">CPU Usage</option>
-                        <option value="hdd_usage">HDD Usage</option>
-                        <option value="network_usage">Network Usage</option>
+                    <select class="dropdown" id="chart-select">
+                        <option value="cpu_usage" {% if active_measure == 'cpu_usage' %}selected{% endif %}>CPU Usage</option>
+                        <option value="hdd_usage" {% if active_measure == 'hdd_usage' %}selected{% endif %}>HDD Usage</option>
+                        <option value="network_usage" {% if active_measure == 'network_usage' %}selected{% endif %}>Network Usage</option>
                     </select>
                     <div class="chart">
                         <canvas id="myChart"></canvas>
@@ -48,7 +48,7 @@
                     <form method="POST" id="criticalForm" class="input-container">
                         {% csrf_token %}
                         <input type="number" placeholder="Critical value:" class="dropdown" name="critical_value" id="criticalInput" value="{{ critical_value }}">
-                        <button type="submit">Update</button>
+                        <button type="submit">Enter</button>
                     </form>
                 </div>
                 <div class="host-info">
@@ -64,11 +64,11 @@
                                 {% endif %}
                             {% endfor %}%</li>
                         <li><strong>HDD Usage: </strong>
-                                {% for item in active_host.measures.hdd_usage.measures %}
-                                    {% if forloop.last %}
-                                        {{ item.1 }}/{{ active_host.hdd_total }} Gb</li>
-                                    {% endif %}
-                                {% endfor %}
+                            {% for item in active_host.measures.hdd_usage.measures %}
+                                {% if forloop.last %}
+                                    {{ item.1 }}
+                                {% endif %}
+                            {% endfor %}/ {{ active_host.hdd_total }} Gb</li>
                         <li><strong>Network Usage: </strong>
                             {% for item in active_host.measures.network_usage.measures %}
                                 {% if forloop.last %}
@@ -99,11 +99,7 @@
                     <h3 class="warning-title"><b>Warning</b></h3>
                     <p><b> {{ title }} </b></p>
                     <p> {{ description }} </p>
-                    <form method="POST" id="warningForm">
-                        {% csrf_token %}
-                        <button type="submit" onclick="document.getElementById('warningInput').value='{{ true }}'; document.getElementById('warningForm').submit();">Check saved state</button>
-                        <input type="hidden" name="warning" id="warningInput">
-                    </form>
+                    <button onclick="document.getElementById('ipInput').value='{{ trouble_host.ip }}'; document.getElementById('hostForm').submit();">Check saved state</button>
                 </div>
             </div>
             {% endif %}

@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from monitor_panel.models import Host
@@ -6,7 +6,7 @@ from loguru import logger
 from monitor_panel.hosts import HOSTS
 
 
-active_measure = 'hdd_usage'
+active_measure = 'cpu_usage'
 active_host = HOSTS[0]
 trouble_host = HOSTS[1]
 show_warning = True
@@ -43,6 +43,7 @@ def get_chart_data(request):
     global active_host, active_measure
     labels = [pair[0] for pair in active_host.measures[active_measure]['measures']]
     values = [pair[1] for pair in active_host.measures[active_measure]['measures']]
+    logger.info(active_measure)
     data = {
         'labels': labels,
         'values': values,
@@ -58,4 +59,15 @@ def set_active_host(request):
         ip = request.POST.get('ip')
         saved_ip = ip
         return JsonResponse({'status': 'success', 'ip': saved_ip})
+    return JsonResponse({'status': 'failed'})
+
+
+@csrf_exempt
+def set_active_measure(request):
+    global active_measure
+    if request.method == 'POST':
+        active_measure = request.POST.get('active_measure')
+        # return JsonResponse({'status': 'success'})
+        return redirect('/')
+
     return JsonResponse({'status': 'failed'})

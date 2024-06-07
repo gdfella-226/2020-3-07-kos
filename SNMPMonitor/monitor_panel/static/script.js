@@ -62,18 +62,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     createChart(chartData.labels, chartData.values, chartData.critical_value);
 });
 
-document.getElementById('chart-select').addEventListener('change', async () => {
+document.getElementById('measure-select').addEventListener('change', async () => {
     const chartData = await fetchChartData();
     createChart(chartData.labels, chartData.values, chartData.critical_value);
 });
+
 
 function addHostClickHandlers() {
     const hostElements = document.querySelectorAll('.host');
     hostElements.forEach(host => {
         host.addEventListener('click', async (event) => {
-            console.log('Click');
             const ip = host.querySelector('.ip').textContent;
             await getIp(ip);
         });
     });
 }
+
+document.getElementById('measure-select').addEventListener('change', async (event) => {
+    const activeMeasure = event.target.value;
+
+    const response = await fetch('/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': getCsrfToken()
+        },
+        body: new URLSearchParams({
+            'active_measure': activeMeasure
+        })
+    });
+
+    if (response.ok) {
+        const chartData = await response.json();
+        createChart(chartData.labels, chartData.values, chartData.critical_value);
+});

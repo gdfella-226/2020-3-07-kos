@@ -8,8 +8,8 @@ from monitor_panel.hosts import HOSTS
 
 active_measure = 'hdd_usage'
 active_host = HOSTS[0]
-trouble_host = HOSTS[0]
-show_warning = False
+trouble_host = HOSTS[1]
+show_warning = True
 
 
 def index(request):
@@ -19,9 +19,10 @@ def index(request):
         if 'ip' in request.POST:
             active_host_ip = request.POST.get('ip')
             active_host = [i for i in HOSTS if i.ip == active_host_ip][0]
-
         if 'critical_value' in request.POST:
             active_host.measures[active_measure]['critical_value'] = int(request.POST.get('critical_value'))
+        if 'warning' in request.POST:
+            show_warning = request.POST.get('warning')
 
     context = {
         'show_warning': show_warning,
@@ -29,12 +30,15 @@ def index(request):
         'title': 'Host disconnected',
         'description': f'Connection with {trouble_host.hostname} has been lost',
         'hosts': HOSTS,
-        'active_host': active_host
+        'active_host': active_host,
+        'active_measure': active_measure,
     }
+    logger.info(active_measure)
 
     return render(request, 'index.html', context)
 
 
+@csrf_exempt
 def get_chart_data(request):
     global active_host, active_measure
     labels = [pair[0] for pair in active_host.measures[active_measure]['measures']]
@@ -42,6 +46,7 @@ def get_chart_data(request):
     data = {
         'labels': labels,
         'values': values,
+        'active_measure': active_measure,
         'critical_value': active_host.measures[active_measure]['critical_value'],
     }
     return JsonResponse(data)

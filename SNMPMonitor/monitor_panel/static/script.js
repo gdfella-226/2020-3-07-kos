@@ -18,7 +18,7 @@ function createChart(labels, values, criticalValue) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Data',
+                label: 'Workload',
                 data: values,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,

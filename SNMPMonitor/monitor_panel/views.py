@@ -6,10 +6,10 @@ from loguru import logger
 from monitor_panel.hosts import HOSTS
 
 
-active_measure = 'hdd_usage'
+active_measure = 'cpu_usage'
 active_host = HOSTS[0]
-trouble_host = HOSTS[0]
-show_warning = False
+trouble_host = HOSTS[1]
+show_warning = True
 
 
 def index(request):

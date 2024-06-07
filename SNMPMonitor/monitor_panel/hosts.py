@@ -22,8 +22,8 @@ HOSTS = [
     Host(ip='192.168.7.102', hostname='Server', role='Agent', system='Windows Server 2016', status='Inactive',
          hdd_total=100, usb_devs=2, measures={
             'cpu_usage': {
-                'measures': [('12:35', 0), ('12:40', 30), ('12:45', 70), ('12:50', 55),
-                             ('12:55', 55), ('13:05', 75), ('13:10', 90)],
+                'measures': [('22:50', 0), ('22:55', 30), ('23:00', 70), ('23:05', 55),
+                             ('23:10', 55), ('23:15', 75), ('23:20', 93)],
                 'critical_value': 70
             },
             'hdd_usage': {

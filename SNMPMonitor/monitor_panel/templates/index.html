@@ -48,7 +48,7 @@
                     <form method="POST" id="criticalForm" class="input-container">
                         {% csrf_token %}
                         <input type="number" placeholder="Critical value:" class="dropdown" name="critical_value" id="criticalInput" value="{{ critical_value }}">
-                        <button type="submit">Update</button>
+                        <button type="submit">Enter</button>
                     </form>
                 </div>
                 <div class="host-info">
@@ -57,9 +57,24 @@
                         <li><strong>IP: </strong> {{ active_host.ip }} </li>
                         <li><strong>Status: </strong> {{ active_host.status }} </li>
                         <li><strong>OS: </strong> {{ active_host.system }} </li>
-                        <li><strong>CPU Usage: </strong>  {{ active_host.measures.cpu_usage.measures.last.1 }}%</li>
-                        <li><strong>HDD Usage: </strong>  {{ active_host.measures.hdd_usage.measures.last.1 }}/{{ active_host.hdd_total }}  Gb</li>
-                        <li><strong>Network Usage: </strong>  {{ active_host.network_usage }}  b</li>
+                        <li><strong>CPU Usage: </strong>
+                            {% for item in active_host.measures.cpu_usage.measures %}
+                                {% if forloop.last %}
+                                    {{ item.1 }}
+                                {% endif %}
+                            {% endfor %}%</li>
+                        <li><strong>HDD Usage: </strong>
+                            {% for item in active_host.measures.hdd_usage.measures %}
+                                {% if forloop.last %}
+                                    {{ item.1 }}
+                                {% endif %}
+                            {% endfor %}/ {{ active_host.hdd_total }} Gb</li>
+                        <li><strong>Network Usage: </strong>
+                            {% for item in active_host.measures.network_usage.measures %}
+                                {% if forloop.last %}
+                                    {{ item.1 }}
+                                {% endif %}
+                            {% endfor %} b</li>
                         <li><strong>USB Devices: </strong>  {{ active_host.usb_devs }} </li>
                     </ul>
                 </div>

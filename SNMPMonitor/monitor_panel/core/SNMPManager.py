@@ -1,9 +1,7 @@
 """
-Contains SNMPmonitor class
+Contains MonitorCore class
 """
 from os import get_terminal_size, system, path
-from time import sleep
-from threading import Thread
 from nmap import PortScanner
 from netifaces import interfaces, ifaddresses, AF_INET
 from pysnmp.carrier.asyncore.dgram import udp
@@ -11,22 +9,26 @@ from pysnmp.entity import config
 from pysnmp.entity.rfc3413 import ntfrcv
 from pysnmp.hlapi import *
 from monitor_panel.models import Host
-from monitor_panel.hosts import HOSTS
 from json import load
 from uuid import getnode
+from loguru import logger
 
 
 class MonitorCore:
     """
-    Network-monitoring system
+    MonitorCore class realizes some of the most important monitoring methods:
+        - Scanning local network for connected devices
+        - Update state data
+        - Change configuration of remote devices
+        - Catch trap-messages
     """
-
     def __init__(self):
         with open(path.join('./', 'SNMPMonitor', 'data.json')) as json_file:
             data = json.load(json_file)
             if data['filter_subnet']:
                 self.SUBNET = data['subnet']
         self.devices = []
+        self.HOSTS = []
         self.host = None
         self.params = []
         for interface in interfaces():
@@ -38,11 +40,10 @@ class MonitorCore:
                     self.params['role'] = 'Manager'
                 else:
                     self.params['role'] = 'Agent'
-        self.find_devs()
 
     def find_devs(self):
         """
-        Detect active devices in network
+        Detect active devices in network and put it in backup-file
         :return:
         """
         scanner = PortScanner()
@@ -76,7 +77,7 @@ class MonitorCore:
         Realise snmp-get function
         :param ip_addr: ip address of target device
         :param oid: snmp object identifier
-        :return:
+        :return: data placed in MIB on oid
         """
         error_indication, error_status, error_index, var_binds = next(
             getCmd(SnmpEngine(),
@@ -91,12 +92,35 @@ class MonitorCore:
             return []
 
     @staticmethod
+    def snmp_set(ip_addr: str, oid: str, val: int) -> bool:
+        """
+        Realise snmp-set function
+        :param ip_addr: ip address of target device
+        :param oid: snmp object identifier
+        :param val: new value to put in oid-param
+        :return: Success status: True/False
+        """
+
+        error_indication, error_status, error_index, var_binds = next(
+            setCmd(SnmpEngine(),
+                   CommunityData('test'),
+                   UdpTransportTarget((ip_addr, 161)),
+                   ContextData(),
+                   ObjectType(ObjectIdentity(oid), Integer(val)))
+        )
+        if len(var_binds) > 0:
+            logger.success(var_binds.prettyPrint())
+        else:
+            logger.error(error_indication.prettyPrint())
+        return error_status == 0
+
+    @staticmethod
     def snmp_walk(ip_addr: str, oid: str) -> list:
         """
         Realise snmp-walk function
         :param ip_addr: ip address of target device
         :param oid: snmp object identifier
-        :return:
+        :return: data placed in MIB on oid
         """
         error_indication, error_status, error_index, var_binds = next(
             nextCmd(SnmpEngine(),
@@ -123,17 +147,18 @@ class MonitorCore:
         :param context_ame:
         :param var_binds:
         :param cb_ctx:
-        :return:
+        :return: None
         """
         if SNMPmonitor.listen_trap(snmp_engine):
             for name, val in var_binds:
                 return name.prettyPrint(), val.prettyPrint()
 
     @staticmethod
-    def listen_trap(snmp_engine):
+    def listen_trap(snmp_engine) -> snmp_engine.transportDispatcher:
         """
         Start snmp-trap listener
-        :return:
+        :param snmp_engine: SNMP engine object
+        :return: running snmp_engine.transportDispatcher object
         """
         config.addTransport(
             snmp_engine,
@@ -148,8 +173,8 @@ class MonitorCore:
 
     def update_devs(self):
         """
-        Start network monitoring
-        :return:
+        Start update state data of remote devices
+        :return: None
         """
         current_time = datetime.datetime.now()
         for dev in self.params:

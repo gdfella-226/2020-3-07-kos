@@ -6,13 +6,12 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from monitor_panel.models import Host
 from loguru import logger
-# from monitor_panel.core import SNMPMonitor
+# from monitor_panel.core.SNMPManager import SNMPManager
 # from monitor_panel.hosts import HOSTS
-from monitor_panel.hosts_detect import HostsGenerator
+from monitor_panel.core.HostsScanner import HostsScanner
 
-# HOSTS = SNMPMonitor.get_hosts()
 HOSTS = []
-GENERATOR = HostsGenerator()
+MANAGER = HostsScanner()
 SHOW_WARNING = False
 
 
@@ -92,6 +91,25 @@ class SetActiveMeasureView(View):
         return JsonResponse({'status': 'failed'})
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class RestartHost(View):
+    def post(self, request, *args, **kwargs):
+        # MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
+        #                          '1.3.6.1.2.1.2.2.1.7.0', 2)
+        HostsScanner.update_state(request.session.get(['active_host_ip']), 'status', 'Inactive')
+        return redirect('/dashboard')
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class DisableIface(View):
+    def post(self, request, *args, **kwargs):
+        MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
+                                 '1.3.6.1.2.1.2.2.1.7.0',
+                                 2)
+        MANAGER.update_state
+        return redirect('/dashboard')
+
+
 class LoadHostsView(View):
     def get(self, request, *args, **kwargs):
         return render(request, 'load.html')
@@ -101,7 +119,7 @@ class LoadHostsView(View):
         return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        host_generator = iter(GENERATOR)
+        host_generator = iter(MANAGER)
         try:
             host = next(host_generator)
             if host:

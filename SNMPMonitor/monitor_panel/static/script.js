@@ -133,7 +133,7 @@ function disableNetworkAdapter(ip) {
 }
 
 function disableUsbPort(ip) {
-    alert('Disabling USB port for host: ' + ip);
+    alert('Disabling USB ports for host: ' + ip);
     // Implement your logic here
 }
 

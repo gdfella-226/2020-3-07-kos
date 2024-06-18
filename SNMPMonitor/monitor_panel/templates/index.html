@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{% static 'styles.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@1.0.2"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'script.js' %}"></script>
 </head>
 <body>
     <div class="container">
@@ -25,10 +27,18 @@
                 <div class="hosts">
                     {% for host in hosts %}
                     <div class="host" onclick="document.getElementById('ipInput').value='{{ host.ip }}'; document.getElementById('hostForm').submit();">
-                        <p class="ip">{{ host.ip }}</p>
+                        <div class="line">
+                            <p class="ip">{{ host.ip }}</p>
+                            <img src="{% static 'img/menu.png' %}" alt="Menu" class="menu-img" onclick="event.stopPropagation(); showContextMenu(event, '{{ host.ip }}')">
+                        </div>
                         <h2>{{ host.hostname }}</h2>
                         <div class="role-os">
                             <p class="role">{{ host.role }}</p>
+                        </div>
+                        <div class="context-menu" id="context-menu-{{ host.ip }}">
+                            <button onclick="restartHost('{{ host.ip }}')">Restart Host</button>
+                            <button onclick="disableNetworkAdapter('{{ host.ip }}')">Disable Network Adapter</button>
+                            <button onclick="disableUsbPort('{{ host.ip }}')">Disable USB Port</button>
                         </div>
                     </div>
                     {% endfor %}
@@ -105,6 +115,5 @@
             {% endif %}
         </main>
     </div>
-    <script src="{% static 'script.js' %}"></script>
 </body>
 </html>

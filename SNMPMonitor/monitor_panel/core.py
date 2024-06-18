@@ -4,7 +4,6 @@ Contains SNMPmonitor class
 from os import get_terminal_size, system, path
 from time import sleep
 from threading import Thread
-from art import tprint
 from nmap import PortScanner
 from netifaces import interfaces, ifaddresses, AF_INET
 from pysnmp.carrier.asyncore.dgram import udp

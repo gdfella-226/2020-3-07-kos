@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Hosts</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'loading-styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><b>Scanning network...</b></h1>
+            <div class="admin">
+                <img src="{% static 'img/user.png' %}" alt="Admin" class="admin-img">
+                <span>Admin</span>
+            </div>
+        </header>
+        <main class="main">
+            <div class="host-list" id="host-list"></div>
+            <div class="image-container">
+                <img src="{% static 'img/load.gif' %}" alt="Loading Image">
+            </div>
+        </main>
+    </div>
+    <script>
+        $(document).ready(function() {
+            function loadHosts() {
+                $.post('/', function(response) {
+                    if (response.status === 'success') {
+                        const hostBlock = `
+                            <div class="host">
+                                <p class="ip">${response.host.ip}</p>
+                                <h2>${response.host.hostname}</h2>
+                            </div>`;
+                        $('#host-list').append(hostBlock);
+                        loadHosts();
+                    } else if (response.status === 'finished') {
+                        window.location.href = '/dashboard';
+                    }
+                });
+            }
+
+            loadHosts();
+        });
+    </script>
+</body>
+</html>

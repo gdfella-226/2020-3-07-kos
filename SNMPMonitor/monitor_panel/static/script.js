@@ -1,13 +1,14 @@
 let myChart;
 
 async function fetchChartData() {
-    const response = await fetch('/get_chart_data/');
+    const response = await fetch('/get-chart-data/');
     const data = await response.json();
     return data;
 }
 
+
 function createChart(labels, values, criticalValue) {
-    const ctx = document.getElementById('myChart').getContext('2d');
+    const ctx = $('#myChart').getContext('2d');
 
     if (myChart) {
         myChart.destroy();
@@ -64,7 +65,8 @@ function createChart(labels, values, criticalValue) {
     });
 }
 
-document.getElementById('chart-select').addEventListener('change', async (event) => {
+
+$('#chart-select').addEventListener('change', async (event) => {
     const activeMeasure = event.target.value;
     const response = await fetch('/set_active_measure/', {
         method: 'POST',
@@ -79,27 +81,25 @@ document.getElementById('chart-select').addEventListener('change', async (event)
     if (response.ok) {
         const chartData = await fetchChartData();
         createChart(chartData.labels, chartData.values, chartData.critical_value);
-    } else {
-        console.error('Get drop-list data error');
     }
 })
 
+
 document.addEventListener('DOMContentLoaded', async () => {
-    const chartData = await fetchChartData();
-    createChart(chartData.labels, chartData.values, chartData.critical_value);
+
 });
 
 
 function addHostClickHandlers() {
-    const hostElements = document.querySelectorAll('.host');
+    const hostElements = $('.host');
     hostElements.forEach(host => {
         host.addEventListener('click', async (event) => {
-            console.log('Click');
             const ip = host.querySelector('.ip').textContent;
             await getIp(ip);
         });
     });
 }
+
 
 async function getIp(ip) {
     const response = await fetch('/set_active_host/', {
@@ -112,11 +112,38 @@ async function getIp(ip) {
             'ip': ip
         })
     });
-    if (response.ok) {
-        console.log(`IP ${ip} сохранен на сервере.`);
-    } else {
-        console.error('Get IP data error');
-    }
+}
+
+
+$(document).ready(async function() {
+    const chartData = await fetchChartData();
+    createChart(chartData.labels, chartData.values, chartData.critical_value);
+
+    $(document).click(function() {
+        $('.context-menu').css('visibility', 'hidden'); // Hide context menus when clicking outside
+    });
+});
+
+
+function showContextMenu(event, ip) {
+    event.stopPropagation(); // Prevent triggering the host click event
+    $('.context-menu').css('visibility', 'hidden'); // Hide all other context menus
+    $('#context-menu-' + ip).css('visibility', 'visible'); // Show the current context menu
+}
+
+function restartHost(ip) {
+    alert('Restarting host: ' + ip);
+    // Implement your logic here
+}
+
+function disableNetworkAdapter(ip) {
+    alert('Disabling network adapter for host: ' + ip);
+    // Implement your logic here
+}
+
+function disableUsbPort(ip) {
+    alert('Disabling USB port for host: ' + ip);
+    // Implement your logic here
 }
 
 function getCsrfToken() {

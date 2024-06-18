@@ -1,4 +1,9 @@
 {
-  "filter_subnet": true,
-  "subnet": "7"
+  "filter": {
+    "filter_subnet": true,
+    "subnet": "7"
+  },
+  "hosts_limit": 10,
+  "measures_limit": 5,
+  "allow_warnings": true
 }

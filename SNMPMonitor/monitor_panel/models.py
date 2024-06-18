@@ -24,3 +24,16 @@ class Host(models.Model):
                     return True
         return False
 
+    def to_json(self) -> dict:
+        res = {
+            'ip': self.ip,
+            'hostname': self.hostname,
+            'role': self.role,
+            'status': self.status,
+            'system': self.system,
+            'hdd_total': self.system,
+            'usb_devs': self.usb_devs,
+            'measures': self.measures,
+        }
+        return res
+

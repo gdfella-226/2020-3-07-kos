@@ -1,25 +1,17 @@
-let myChart;
-
 async function fetchChartData() {
     const response = await fetch('/get-chart-data/');
     const data = await response.json();
     return data;
 }
 
-
 function createChart(labels, values, criticalValue) {
-    const ctx = $('#myChart').getContext('2d');
-
-    if (myChart) {
-        myChart.destroy();
-    }
-
-    myChart = new Chart(ctx, {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    new Chart(ctx, {
         type: 'line',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Workload',
+                label: 'Data',
                 data: values,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
@@ -65,10 +57,31 @@ function createChart(labels, values, criticalValue) {
     });
 }
 
+document.addEventListener('DOMContentLoaded', async () => {
+    const chartData = await fetchChartData();
+    createChart(chartData.labels, chartData.values, chartData.critical_value);
+});
 
-$('#chart-select').addEventListener('change', async (event) => {
+document.getElementById('measure-select').addEventListener('change', async () => {
+    const chartData = await fetchChartData();
+    createChart(chartData.labels, chartData.values, chartData.critical_value);
+});
+
+
+function addHostClickHandlers() {
+    const hostElements = document.querySelectorAll('.host');
+    hostElements.forEach(host => {
+        host.addEventListener('click', async (event) => {
+            const ip = host.querySelector('.ip').textContent;
+            await getIp(ip);
+        });
+    });
+}
+
+document.getElementById('measure-select').addEventListener('change', async (event) => {
     const activeMeasure = event.target.value;
-    const response = await fetch('/set_active_measure/', {
+
+    const response = await fetch('/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -78,57 +91,35 @@ $('#chart-select').addEventListener('change', async (event) => {
             'active_measure': activeMeasure
         })
     });
+
     if (response.ok) {
-        const chartData = await fetchChartData();
+        const chartData = await response.json();
         createChart(chartData.labels, chartData.values, chartData.critical_value);
-    }
-})
-
-
-document.addEventListener('DOMContentLoaded', async () => {
-
+        }
 });
-
-
-function addHostClickHandlers() {
-    const hostElements = $('.host');
-    hostElements.forEach(host => {
-        host.addEventListener('click', async (event) => {
-            const ip = host.querySelector('.ip').textContent;
-            await getIp(ip);
-        });
-    });
-}
-
-
-async function getIp(ip) {
-    const response = await fetch('/set_active_host/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'X-CSRFToken': getCsrfToken()
-        },
-        body: new URLSearchParams({
-            'ip': ip
-        })
-    });
-}
-
 
 $(document).ready(async function() {
     const chartData = await fetchChartData();
     createChart(chartData.labels, chartData.values, chartData.critical_value);
 
-    $(document).click(function() {
-        $('.context-menu').css('visibility', 'hidden'); // Hide context menus when clicking outside
-    });
+    /*const hostElements = document.querySelectorAll('context-menu');
+    hostElements.forEach(host => {
+        host.style.visibility = 'hidden';
+        });
+    });*/
 });
 
 
 function showContextMenu(event, ip) {
-    event.stopPropagation(); // Prevent triggering the host click event
-    $('.context-menu').css('visibility', 'hidden'); // Hide all other context menus
-    $('#context-menu-' + ip).css('visibility', 'visible'); // Show the current context menu
+    event.stopPropagation();
+    /*const hostElements = document.querySelectorAll('context-menu');
+    hostElements.forEach(host => {
+        //host.getElementsByClass('ip')
+        host.style.visibility = 'hidden';
+        });
+    });*/
+    var currentMenu = document.getElementById('context-menu-' + ip);
+    currentMenu.style.visibility = 'visible';
 }
 
 function restartHost(ip) {

@@ -40,8 +40,8 @@ HOSTS = [
     Host(ip='192.168.7.103', hostname='Desktop-J7V8BID4', role='Agent', system='Windows 10', status='Active',
          hdd_total=50, usb_devs=0, measures={
             'cpu_usage': {
-                'measures': [('12:35', 0), ('12:40', 10), ('12:45', 10), ('12:50', 15),
-                             ('12:55', 10), ('13:05', 10), ('13:10', 20)],
+                'measures': [('07:15', 0), ('07:20', 10), ('07:25', 10), ('07:30', 15),
+                             ('07:35', 10), ('07:40', 10), ('07:45', 80)],
                 'critical_value': 70
             },
             'hdd_usage': {

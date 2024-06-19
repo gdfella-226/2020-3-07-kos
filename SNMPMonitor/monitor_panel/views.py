@@ -12,32 +12,30 @@ from monitor_panel.core.HostsScanner import HostsScanner
 
 MANAGER = HostsScanner()
 HOSTS = []
-SHOW_WARNING = False
+SHOW_WARNING = True
 
 
 class IndexView(TemplateView):
     template_name = 'index.html'
 
     def get_context_data(self, **kwargs):
-        logger.info(HOSTS)
         context = super().get_context_data(**kwargs)
         active_measure = self.request.session.get('active_measure', 'cpu_usage')
         active_host_ip = self.request.session.get('active_host_ip', HOSTS[0].ip)
-        active_host = [i for i in HOSTS if i.ip == active_host_ip][0]
+        active_host = next((i for i in HOSTS if i.ip == active_host_ip), HOSTS[0])
         show_warning = self.request.session.get('show_warning', SHOW_WARNING)
-        trouble_host = self.request.session.get('trouble_host', None)
+        trouble_host = self.request.session.get('trouble_host', HOSTS[2])
 
         context.update({
             'show_warning': show_warning,
             'trouble_host': trouble_host,
-            'title': 'Host disconnected',
-            'description': f'Connection with {trouble_host.hostname} has been lost' if trouble_host else '',
+            'title': 'High CPU usage',
+            'description': f'CPU usage of {trouble_host.hostname} is over critical value!' if trouble_host else '',
             'hosts': HOSTS,
             'active_host': active_host,
             'active_measure': active_measure,
             'critical_value': active_host.measures[active_measure]['critical_value'],
         })
-        logger.info(active_measure)
         return context
 
     def post(self, request, *args, **kwargs):
@@ -96,10 +94,9 @@ class SetActiveMeasureView(View):
 class RestartHost(View):
     def post(self, request, *args, **kwargs):
         ip = request.POST.get('ip')
-        logger.info(ip)
         MANAGER.update_state(ip, 'status', 'Restarting')
         return JsonResponse({'status': 'success'})
-        '''if MANAGER.manager.snmp_set(ip, '1.3.6.1.2.1.2.2.1.7.0', 2):
+        '''if MANAGER.manager.restart(ip):
             if MANAGER.mng.check_devise(ip):
                 return JsonResponse({'status': 'success'})
         return JsonResponse({'status': 'error'})'''
@@ -108,12 +105,13 @@ class RestartHost(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class DisableIface(View):
     def post(self, request, *args, **kwargs):
-        if MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
+        '''if MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
                                  '1.3.6.1.2.1.2.2.1.7.0', 2):
             if MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
                                  '1.3.6.1.2.1.2.2.1.7.0', 2):
                 return JsonResponse({'status': 'success'})
-        return JsonResponse({'status': 'error'})
+        return JsonResponse({'status': 'error'})'''
+        pass
 
 
 class LoadHostsView(View):

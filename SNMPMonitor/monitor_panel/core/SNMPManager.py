@@ -134,8 +134,30 @@ class MonitorCore:
         else:
             return []
 
-    def restart(self):
-
+    def restart(self, ip: str) -> bool:
+        """
+        Using snmp_set() to restart remote device
+        :param ip: IP address of remote device to restart
+        :return: Success indication (True/False)
+        """
+        restart_oids = {
+            "192.168.7.101": "1.3.6.1.2.1.2.9.3.1.3.2.0",
+            "192.168.7.102": "1.3.6.1.4.1.21.1.5.7.1.0",
+            "192.168.7.103": "1.3.6.1.2.1.2.9.3.1.3.2.0",
+            "192.168.7.104": "1.3.6.1.2.1.2.2.51",
+            "192.168.7.105": "1.3.6.1.2.1.2.2.51",
+        }
+        host = Host.objects.filter(ip=ip).first()
+        if host and host in restart_oids.keys():
+            try:
+                self.snmp_set(ip, restart_oids[ip], 1)
+                logger.success(f"Sent restart request to {ip}")
+                return True
+            except Exception as error:
+                logger.error(f"Failed to restart device: {error}")
+        else:
+            logger.error(f"Can't access device at {ip} ")
+        return False
 
     @staticmethod
     def operate_trap(snmp_engine, state_reference, context_engine_id, context_ame,

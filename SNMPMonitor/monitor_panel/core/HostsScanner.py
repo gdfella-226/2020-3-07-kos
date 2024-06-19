@@ -15,12 +15,12 @@ class HostsScanner:
 
     def __iter__(self):
         if self.counter >= len(self.hosts):
-            #sleep(5)
+            sleep(1)
             return False
         else:
             res = self.hosts[self.counter]
             self.counter += 1
-            #sleep(randint(1, 4))
+            sleep(randint(1, 4))
             yield res
 
     def update_state(self, dev: str, key: str, val: any):

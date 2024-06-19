@@ -24,9 +24,9 @@ class MonitorCore:
     """
     def __init__(self):
         with open(path.join('./', 'SNMPMonitor', 'data.json')) as json_file:
-            data = json.load(json_file)
+            self.data = json.load(json_file)
             if data['filter_subnet']:
-                self.SUBNET = data['subnet']
+                self.SUBNET = self.data['subnet']
         self.devices = []
         self.HOSTS = []
         self.host = None
@@ -134,6 +134,9 @@ class MonitorCore:
         else:
             return []
 
+    def restart(self):
+
+
     @staticmethod
     def operate_trap(snmp_engine, state_reference, context_engine_id, context_ame,
                      var_binds, cb_ctx):
@@ -201,4 +204,20 @@ class MonitorCore:
                     i.hdd_total = dev['hdd_total']
                     i.status = dev['status']
                     i.usb_devs = dev['usb_info']
+
+    def check_devise(self, ip: str) -> bool:
+        """
+        Check if devise is network and snmp available
+        :param ip: ip address af device to check
+        :return: availability (True/False)
+        """
+        param = '-n' if os.sys.platform().lower() == 'win32' else '-c'
+        if response == os.system(f"ping {param} 1 {ip}"):
+            if self.snmp_get(ip, '1.3.6.1.2.1.1.1.0'):
+                return True
+            else:
+                logger.error(f'Unrecognized devise at {ip}')
+        else:
+            logger.error(f'Host unreachable {ip}')
+        return False
 

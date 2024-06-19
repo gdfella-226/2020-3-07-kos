@@ -10,8 +10,8 @@ from loguru import logger
 # from monitor_panel.hosts import HOSTS
 from monitor_panel.core.HostsScanner import HostsScanner
 
-HOSTS = []
 MANAGER = HostsScanner()
+HOSTS = []
 SHOW_WARNING = False
 
 
@@ -19,6 +19,7 @@ class IndexView(TemplateView):
     template_name = 'index.html'
 
     def get_context_data(self, **kwargs):
+        logger.info(HOSTS)
         context = super().get_context_data(**kwargs)
         active_measure = self.request.session.get('active_measure', 'cpu_usage')
         active_host_ip = self.request.session.get('active_host_ip', HOSTS[0].ip)
@@ -94,20 +95,25 @@ class SetActiveMeasureView(View):
 @method_decorator(csrf_exempt, name='dispatch')
 class RestartHost(View):
     def post(self, request, *args, **kwargs):
-        # MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
-        #                          '1.3.6.1.2.1.2.2.1.7.0', 2)
-        HostsScanner.update_state(request.session.get(['active_host_ip']), 'status', 'Inactive')
-        return redirect('/dashboard')
+        ip = request.POST.get('ip')
+        logger.info(ip)
+        MANAGER.update_state(ip, 'status', 'Restarting')
+        return JsonResponse({'status': 'success'})
+        '''if MANAGER.manager.snmp_set(ip, '1.3.6.1.2.1.2.2.1.7.0', 2):
+            if MANAGER.mng.check_devise(ip):
+                return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'error'})'''
 
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DisableIface(View):
     def post(self, request, *args, **kwargs):
-        MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
-                                 '1.3.6.1.2.1.2.2.1.7.0',
-                                 2)
-        MANAGER.update_state
-        return redirect('/dashboard')
+        if MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
+                                 '1.3.6.1.2.1.2.2.1.7.0', 2):
+            if MANAGER.manager.snmp_set(request.session.get(['active_host_ip']),
+                                 '1.3.6.1.2.1.2.2.1.7.0', 2):
+                return JsonResponse({'status': 'success'})
+        return JsonResponse({'status': 'error'})
 
 
 class LoadHostsView(View):

@@ -1,5 +1,6 @@
 from random import randint
 from time import sleep
+from loguru import logger
 # from monitor_panel.core.SNMPManager import SNMPManager
 from monitor_panel.core.hosts import HOSTS
 
@@ -22,10 +23,12 @@ class HostsScanner:
             #sleep(randint(1, 4))
             yield res
 
-    @staticmethod
     def update_state(self, dev: str, key: str, val: any):
-        for host in monitor_panel.core.hosts.HOSTS:
+        logger.success(f'[{dev}], [{key}], [{val}]')
+        for host in self.hosts:
             if host.ip == dev:
+                prev_val = getattr(host, key)
                 setattr(host, key, val)
+                logger.info(f'Change "{key}": {prev_val} -> {getattr(host, key)}')
 
 

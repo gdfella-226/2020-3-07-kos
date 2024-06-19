@@ -165,6 +165,10 @@ body {
     background: red;
 }
 
+.status.restarting {
+    background: blue;
+}
+
 .warning {
     display: flex;
     align-items: center;

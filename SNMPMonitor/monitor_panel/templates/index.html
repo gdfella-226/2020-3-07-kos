@@ -94,7 +94,7 @@
                         {% for host in hosts %}
                         <li>
                             <strong>{{ host.ip }}:</strong> {{ host.hostname }}
-                            <span class="status {% if host.status == 'Active' %}active{% else %}inactive{% endif %}"></span>
+                            <span class="status {% if host.status == 'Active' %}active{% elif host.status == 'Restarting' %}restarting{% else %}inactive{% endif %}"></span>
                         </li>
                         {% endfor %}
                     </ul>

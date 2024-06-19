@@ -101,12 +101,6 @@ document.getElementById('measure-select').addEventListener('change', async (even
 $(document).ready(async function() {
     const chartData = await fetchChartData();
     createChart(chartData.labels, chartData.values, chartData.critical_value);
-
-    /*const hostElements = document.querySelectorAll('context-menu');
-    hostElements.forEach(host => {
-        host.style.visibility = 'hidden';
-        });
-    });*/
 });
 
 
@@ -124,16 +118,28 @@ function showContextMenu(event, ip) {
 
 function restartHost(ip) {
     alert('Restarting host: ' + ip);
-    // Implement your logic here
+    $.ajax({
+        url: '/restart-host/',
+        type: 'POST',
+        data: {
+            'ip': ip,
+            'csrfmiddlewaretoken': getCsrfToken()
+        },
+        success: function(response) {
+            window.location.href = '/dashboard';
+        },
+        error: function(xhr, status, error) {
+            alert('Error restarting host: ' + ip);
+        }
+    });
 }
 
-function disableNetworkAdapter(ip) {
-    alert('Disabling network adapter for host: ' + ip);
-    // Implement your logic here
+async function disableNetworkAdapter(ip) {
+    //alert('Disabling network adapter for host: ' + ip);
 }
 
 function disableUsbPort(ip) {
-    alert('Disabling USB ports for host: ' + ip);
+    //alert('Disabling USB ports for host: ' + ip);
     // Implement your logic here
 }
 
